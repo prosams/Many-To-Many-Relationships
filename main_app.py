@@ -68,6 +68,10 @@ class Song(db.Model):
     def __repr__(self):
         return "{} by {} | {}".format(self.title,self.artist, self.genre)
 
+class Playlist(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(255))
+
 
 
 ##### Set up Forms #####
@@ -120,6 +124,17 @@ def get_or_create_song(db_session, song_title, song_artist, song_album, song_gen
         db_session.commit()
         return song
 
+def get_or_create_playlist(db_session, song_title, song_artist, song_album, song_genre):
+    song = db_session.query(Song).filter_by(title=song_title).first()
+    if song:
+        return song
+    else:
+        artist = get_or_create_artist(db_session, song_artist)
+        album = get_or_create_album(db_session, song_album, artists_list=[song_artist]) # list of one song artist each time -- check out get_or_create_album and get_or_create_artist!
+        song = Song(title=song_title,genre=song_genre,artist_id=artist.id)
+        db_session.add(song)
+        db_session.commit()
+        return song
 
 
 
